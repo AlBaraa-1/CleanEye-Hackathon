@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+data/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model weights (optional - comment out if you want to include them)
+# Weights/*.pt
+yolo*.pt
+
+# Outputs and logs
+outputs/
+runs/
+*.log
+
+# QR codes (regenerate on site)
+cleaneye_qr.png
+
+# Temporary files
+*.tmp
+*.temp
+presentation_status.txt
+
+# Dataset (too large for GitHub)
+data/train/
+data/valid/
+data/test/
+dataset_cleaned/
+dataset_merged/
+
+# Keep dataset config
+!data/data.yaml
+!data/*.txt
+!data/README.*
+
+# Media test files (optional - keep small ones)
+# media/*.mp4
+# media/*.avi
+
+# OS
+Thumbs.db
+.DS_Store
