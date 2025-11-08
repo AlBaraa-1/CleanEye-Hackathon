@@ -166,6 +166,10 @@ def main():
             background-color: #2E7D32;
             color: white;
         }
+        /* Center Streamlit tab labels */
+        div[data-baseweb="tab-list"] {
+            justify-content: center !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
@@ -201,11 +205,8 @@ def main():
         st.markdown("### 📊 Waste Categories")
         categories = [
             "🟠 General Waste (0)",
-            "🟡 Containers (c)",
             "🔴 Garbage",
-            "🟣 Garbage Bags",
-            "🟢 Waste",
-            "🟤 Trash"
+            "🟣 Garbage Bags"
         ]
         for cat in categories:
             st.markdown(f"- {cat}")
@@ -219,9 +220,26 @@ def main():
         st.markdown("---")
         st.markdown("**Developer:** AlBaraa AlOlabi (@AlBaraa63)")
         st.markdown("**Track:** MCP in Action (Agents)")
+        st.markdown("---")
+        st.markdown("### 🧪 Test Samples")
+        st.info("Download and try these sample images:")
+        sample_dir = ROOT_DIR / "test_samples"
+        sample_files = [
+            ("sample_1_bins.jpg", "Garbage and recycle bins"),
+            ("sample_2_bags.jpg", "Black garbage bags"),
+            ("sample_3_pile.jpg", "Large garbage pile"),
+            ("sample_4_street.jpg", "Street waste scenario"),
+            ("sample_5_plastic.jpg", "Plastic waste accumulation")
+        ]
+        for fname, desc in sample_files:
+            fpath = sample_dir / fname
+            if fpath.exists():
+                with open(fpath, "rb") as f:
+                    btn_label = f"⬇️ {desc}"
+                    st.download_button(btn_label, f.read(), file_name=fname, mime="image/jpeg")
     
     # Main content
-    tab1, tab2, tab3 = st.tabs(["📸 Image Detection", "📊 About", "🏆 Hackathon"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📸 Image Detection", "🎥 Video Detection", "📊 About", "🏆 Hackathon"])
     
     with tab1:
         st.markdown("### Upload an Image for Detection")
@@ -242,7 +260,7 @@ def main():
             
             with col1:
                 st.markdown("#### Original Image")
-                st.image(image_rgb, use_column_width=True)
+                st.image(image_rgb, use_container_width=True)
             
             # Run detection
             with st.spinner("🔍 Detecting garbage..."):
@@ -255,7 +273,7 @@ def main():
             with col2:
                 st.markdown("#### Detection Results")
                 annotated_rgb = cv2.cvtColor(result["image"], cv2.COLOR_BGR2RGB)
-                st.image(annotated_rgb, use_column_width=True)
+                st.image(annotated_rgb, use_container_width=True)
             
             # Display statistics
             st.markdown("---")
@@ -321,6 +339,222 @@ def main():
             """)
     
     with tab2:
+        st.markdown("### Upload a Video for Detection")
+        
+        uploaded_video = st.file_uploader(
+            "Choose a video file (MP4, MOV, AVI)",
+            type=["mp4", "mov", "avi"],
+            help="Upload a video to analyze garbage frame-by-frame"
+        )
+        
+        if uploaded_video is not None:
+            # Save uploaded video temporarily
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_file:
+                tmp_file.write(uploaded_video.getbuffer())
+                temp_path = Path(tmp_file.name)
+            
+            # Open video
+            cap = cv2.VideoCapture(str(temp_path))
+            
+            if not cap.isOpened():
+                st.error("❌ Unable to open video file. Please try another format.")
+                temp_path.unlink(missing_ok=True)
+                return
+            
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            fps = int(cap.get(cv2.CAP_PROP_FPS))
+            
+            st.info(f"📹 Video Info: {total_frames} frames at {fps} FPS")
+            
+            # Limit frames to analyze for cloud deployment
+            max_frames = st.slider("Maximum frames to analyze", 10, 200, 100,
+                                  help="Analyzing fewer frames is faster")
+            
+            # Analysis button
+            if st.button("🎬 Start Analysis"):
+                model = load_model()
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                video_frame_placeholder = st.empty()
+                
+                frames_analyzed = 0
+                detections_found = 0
+                unique_items = set()
+                detection_samples = []
+                annotated_frames = []
+                
+                # Process video frames
+                frame_skip = max(1, total_frames // max_frames)
+                
+                # Reset video to start
+                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                
+                try:
+                    while frames_analyzed < max_frames:
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        
+                        # Skip frames for efficiency
+                        for _ in range(frame_skip - 1):
+                            cap.read()
+                        
+                        # Run detection
+                        results = model(frame, conf=confidence, verbose=False)
+                        
+                        # Annotate frame
+                        annotated = frame.copy()
+                        frame_detections = len(results[0].boxes)
+                        
+                        if frame_detections > 0:
+                            detections_found += frame_detections
+                            
+                            # Draw detections
+                            for box in results[0].boxes:
+                                cls_id = int(box.cls[0])
+                                conf_score = float(box.conf[0])
+                                label = model.names[cls_id]
+                                color = COLORS.get(label, (255, 255, 255))
+                                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                                
+                                cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
+                                cv2.putText(annotated, f"{label} {conf_score:.0%}", 
+                                          (x1, max(25, y1 - 10)),
+                                          cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                                
+                                unique_items.add(label)
+                            
+                            # Save sample detection frames (first 5)
+                            if len(detection_samples) < 5:
+                                detection_samples.append(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB))
+                        
+                        # Show current frame being processed
+                        if frames_analyzed % 10 == 0:  # Update display every 10 frames
+                            frame_rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
+                            video_frame_placeholder.image(frame_rgb, caption=f"Processing frame {frames_analyzed}...", 
+                                                        use_container_width=True)
+                        
+                        # Store frames for optional video output (limit to 30 for performance)
+                        if len(annotated_frames) < 30:
+                            annotated_frames.append(annotated)
+                        
+                        frames_analyzed += 1
+                        progress = frames_analyzed / max_frames
+                        progress_bar.progress(progress)
+                        status_text.text(f"Analyzing... {frames_analyzed}/{max_frames} frames | Detections: {detections_found}")
+                
+                finally:
+                    cap.release()
+                    temp_path.unlink(missing_ok=True)
+                
+                # Clear processing display
+                video_frame_placeholder.empty()
+                
+                # Display results
+                st.markdown("---")
+                st.markdown("### 📊 Video Analysis Complete!")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.metric("📹 Frames Analyzed", frames_analyzed)
+                
+                with col2:
+                    st.metric("🗑️ Total Detections", detections_found)
+                
+                with col3:
+                    avg = detections_found / frames_analyzed if frames_analyzed > 0 else 0
+                    st.metric("📈 Avg per Frame", f"{avg:.2f}")
+                
+                if unique_items:
+                    st.success(f"✅ **Found {len(unique_items)} different types of garbage:**")
+                    st.write(", ".join(f"🗑️ {item}" for item in sorted(unique_items)))
+                    
+                    # Show sample detection frames
+                    if detection_samples:
+                        st.markdown("### 🖼️ Sample Detection Frames")
+                        st.markdown(f"*Showing {len(detection_samples)} frames with detections*")
+                        
+                        # Display in rows of 3
+                        for i in range(0, len(detection_samples), 3):
+                            cols = st.columns(3)
+                            for idx, img in enumerate(detection_samples[i:i+3]):
+                                with cols[idx]:
+                                    st.image(img, caption=f"Sample {i+idx+1}", use_container_width=True)
+                    
+                    # Create a short video clip if we have frames
+                    if annotated_frames and len(annotated_frames) >= 10:
+                        st.markdown("### 🎬 Annotated Video Sample")
+                        st.info(f"📹 Showing first {len(annotated_frames)} processed frames as a video sample")
+                        
+                        # Create temporary video file with better codec
+                        output_video_path = Path(tempfile.gettempdir()) / f"detection_output_{hash(str(annotated_frames[0].data.tobytes()))}.mp4"
+                        
+                        # Get frame dimensions
+                        height, width = annotated_frames[0].shape[:2]
+                        
+                        try:
+                            # Try H.264 codec (better browser compatibility)
+                            fourcc = cv2.VideoWriter_fourcc(*'avc1')
+                            out = cv2.VideoWriter(str(output_video_path), fourcc, 10.0, (width, height))
+                            
+                            # If that fails, fallback to mp4v
+                            if not out.isOpened():
+                                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                                out = cv2.VideoWriter(str(output_video_path), fourcc, 10.0, (width, height))
+                            
+                            for frame in annotated_frames:
+                                out.write(frame)
+                            
+                            out.release()
+                            
+                            # Check if video file was created successfully
+                            if output_video_path.exists() and output_video_path.stat().st_size > 0:
+                                # Display video
+                                with open(output_video_path, 'rb') as video_file:
+                                    video_bytes = video_file.read()
+                                    st.video(video_bytes)
+                                
+                                # Cleanup
+                                output_video_path.unlink(missing_ok=True)
+                            else:
+                                st.warning("⚠️ Could not create video file. Showing frames as slideshow instead.")
+                                # Show as image slideshow
+                                st.markdown("#### 📸 Detection Frames Slideshow")
+                                frame_placeholder = st.empty()
+                                import time
+                                for idx, frame in enumerate(annotated_frames):
+                                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                                    frame_placeholder.image(frame_rgb, caption=f"Frame {idx+1}/{len(annotated_frames)}", 
+                                                          use_container_width=True)
+                                    time.sleep(0.1)  # 10 FPS
+                        
+                        except Exception as e:
+                            st.warning(f"⚠️ Video creation failed: {str(e)}. Showing sample frames instead.")
+                            # Fallback: show frames in a grid
+                            st.markdown("#### 📸 All Detection Frames")
+                            for i in range(0, len(annotated_frames), 3):
+                                cols = st.columns(3)
+                                for idx, frame in enumerate(annotated_frames[i:i+3]):
+                                    with cols[idx]:
+                                        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                                        st.image(frame_rgb, caption=f"Frame {i+idx+1}", use_container_width=True)
+                        
+                else:
+                    st.info("ℹ️ No garbage detected in this video. Try lowering the confidence threshold.")
+        
+        else:
+            st.info("👆 Upload a video to start analyzing")
+            st.markdown("#### 💡 Video Analysis Tips:")
+            st.markdown("""
+            - Shorter videos process faster
+            - Clear, stable footage works best
+            - Good lighting improves detection accuracy
+            - The system analyzes frames at regular intervals
+            """)
+    
+    with tab4:
         st.markdown("## 🎯 About CleanEye")
         
         st.markdown("""
