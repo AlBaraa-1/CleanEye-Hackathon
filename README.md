@@ -5,9 +5,11 @@
 ![MCP](https://img.shields.io/badge/MCP-Enabled-blueviolet.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**CleanEye** is an AI-powered garbage detection system built for ADIPEC 2025 and MCP 1st Birthday Hackathon. Using YOLOv8, it identifies and tracks waste in real-time through images, videos, and live webcam feeds. Now **MCP-enabled** for AI agent interaction!
+**CleanEye** is an AI-powered garbage detection system built for **MCP 1st Birthday Hackathon**. Using YOLOv8, it identifies and tracks waste in real-time through images, videos, and live webcam feeds. **MCP-enabled** for AI agent interaction!
 
 > 🏆 **Built for MCP 1st Birthday Hackathon** - Track 2: MCP in Action (Agents)
+> 
+> 🌐 **Live Demo:** [https://huggingface.co/spaces/AlBaraa63/cleaneye-garbage-detection](https://huggingface.co/spaces/AlBaraa63/cleaneye-garbage-detection)
 
 ---
 
@@ -42,8 +44,8 @@ CleanEye detects **6 types** of waste:
 
 ```bash
 # Clone the repository
-git clone https://github.com/AlBaraa-1/Computer-vision.git
-cd Computer-vision/CleanEye
+git clone https://github.com/AlBaraa-1/CleanEye-Hackathon.git
+cd CleanEye-Hackathon
 
 # Install dependencies
 pip install -r requirements.txt
@@ -70,26 +72,27 @@ python code/detect_pro.py image media/test.jpg
 ## 📁 Project Structure
 
 ```
-CleanEye/
-├── code/                      # Application scripts
-│   ├── app.py                # Streamlit web dashboard
-│   ├── detect_pro.py         # CLI detection tool
-│   ├── detect_report.py      # Before/after reports
-│   ├── test_img.py           # Image tester
-│   ├── test_vid.py           # Video tester
-│   ├── train.py              # Model training
-│   └── generate_qr.py        # QR code generator
-├── Weights/
-│   └── best.pt               # Trained YOLOv8 model
-├── data/
-│   └── data.yaml             # Dataset configuration
-├── media/                     # Test images/videos
-├── outputs/                   # Detection results
-│   ├── logs/                 # JSON logs
-│   ├── reports/              # Detection reports
-│   └── snapshots/            # Saved frames
-├── start.py                   # Main launcher
-└── requirements.txt           # Python dependencies
+CleanEye-Hackathon/
+├── mcp/                      # 🔌 MCP Integration
+│   ├── mcp_server.py         # MCP server implementation
+│   └── mcp_demo.py           # MCP usage examples
+├── src/                      # 💻 Source Code
+│   └── code/                 # Application modules
+│       ├── app.py            # Streamlit web dashboard
+│       ├── detect_pro.py     # CLI detection tool
+│       ├── detect_report.py  # Before/after reports
+│       └── ...
+├── models/                   # 🧠 AI Models
+│   └── Weights/
+│       └── best.pt           # Trained YOLOv8 model (21.5 MB)
+├── HF_Deploy/                # 🌐 HuggingFace Deployment
+│   ├── app.py                # Streamlit web app
+│   ├── requirements.txt
+│   ├── Weights/              # Model copy
+│   └── test_samples/         # Demo images
+├── start.py                  # 🚀 Main launcher
+├── requirements.txt          # 📦 Dependencies
+└── README.md                 # 📖 Documentation
 ```
 
 ---
@@ -348,9 +351,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 🏆 ADIPEC 2025
+## 🏆 MCP 1st Birthday Hackathon
 
-Built for the **ADIPEC 2025** technology showcase in Abu Dhabi, UAE.
+Built for the **MCP 1st Birthday Hackathon** (November 14-30, 2025).
+
+**Track 2: MCP in Action (Agents)** - Demonstrating how AI agents can sense and act in the real world through computer vision, combining perception with decision-making for environmental sustainability.
 
 **Mission:** Making cities cleaner through AI-powered waste detection and monitoring.
 
@@ -358,17 +363,24 @@ Built for the **ADIPEC 2025** technology showcase in Abu Dhabi, UAE.
 
 ## 🙏 Acknowledgments
 
+- **Anthropic & Gradio** - MCP 1st Birthday Hackathon hosts
 - **Ultralytics** - YOLOv8 framework
 - **Roboflow** - Dataset tools
 - **Streamlit** - Dashboard framework
+- **HuggingFace** - Deployment platform
 
 ---
 
 ## 📧 Contact
 
+**AlBaraa AlOlabi**
+- 🤗 HuggingFace: [@AlBaraa63](https://huggingface.co/AlBaraa63)
+- 💻 GitHub: [@AlBaraa-1](https://github.com/AlBaraa-1)
+- 📧 Email: 666645@gmail.com
+
 For questions or support:
 - Open an issue on GitHub
-- Email: [Your email if you want to add]
+- Join the [MCP Hackathon Discord](https://discord.gg/92sEPT2Zhv)
 
 ---
 

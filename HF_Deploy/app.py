@@ -141,47 +141,114 @@ def main():
         initial_sidebar_state="auto"  # Auto-collapse sidebar on mobile
     )
     
-    # Custom CSS - Mobile Friendly
+    # Custom CSS - Responsive Design (Desktop + Mobile)
     st.markdown("""
         <style>
+        /* Base Styles - Desktop First */
         .main-header {
             font-size: clamp(1.5rem, 5vw, 3rem);
             color: #2E7D32;
             text-align: center;
             margin-bottom: 0;
-            padding: 0.5rem;
+            padding: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         .sub-header {
             text-align: center;
             color: #666;
-            margin-bottom: 1rem;
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            margin-bottom: 2rem;
+            font-size: clamp(0.8rem, 2vw, 1.1rem);
             padding: 0 1rem;
+            line-height: 1.6;
         }
         .metric-card {
-            background: #f0f2f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
+            background: linear-gradient(135deg, #f0f2f6 0%, #e8eaf0 100%);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
             margin: 0.5rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
         .stButton>button {
             width: 100%;
             background-color: #2E7D32;
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1.5rem;
             font-size: clamp(0.9rem, 2vw, 1rem);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .stButton>button:hover {
+            background-color: #1B5E20;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transform: translateY(-1px);
         }
         /* Center Streamlit tab labels */
         div[data-baseweb="tab-list"] {
             justify-content: center !important;
+            gap: 0.5rem;
+        }
+        div[data-baseweb="tab-list"] button {
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        /* Desktop enhancements (large screens) */
+        @media (min-width: 1024px) {
+            .main-header {
+                font-size: 3.5rem;
+                margin-bottom: 0.5rem;
+            }
+            .sub-header {
+                font-size: 1.2rem;
+                margin-bottom: 2.5rem;
+            }
+            section[data-testid="stSidebar"] {
+                padding: 2rem 1.5rem;
+            }
+            /* Better spacing for metrics on desktop */
+            [data-testid="metric-container"] {
+                padding: 1rem;
+                background: #f8f9fa;
+                border-radius: 0.5rem;
+                border: 1px solid #e0e0e0;
+            }
+            /* Add subtle animations */
+            .stImage {
+                transition: transform 0.3s ease;
+            }
+            .stImage:hover {
+                transform: scale(1.02);
+            }
+        }
+        /* Tablet adjustments */
+        @media (max-width: 1023px) and (min-width: 769px) {
+            .main-header {
+                font-size: 2.5rem;
+            }
+            .sub-header {
+                font-size: 1rem;
+            }
         }
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
             .main-header {
                 font-size: 2rem;
+                padding: 0.5rem;
             }
             .sub-header {
                 font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }
+            .metric-card {
+                padding: 1rem;
             }
             /* Make columns stack on mobile */
             [data-testid="column"] {
