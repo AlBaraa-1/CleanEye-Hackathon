@@ -480,6 +480,11 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
                     - Supports multi-page PDFs
                     - Extracts metadata (author, title)
                     - Automatically generates keywords
+                    
+                    **⚠️ Limitations:**
+                    - Max file size: 200 MB (HuggingFace limit)
+                    - Text-based PDFs only (scanned images need OCR)
+                    - Processing time: ~2-5 seconds per page
                     """)
                 
                 with gr.Column(scale=2):
@@ -499,6 +504,11 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 📝 AI-Powered Text Analysis
             Extract keywords, generate summaries, clean text, or split into chunks.
+            
+            **⚠️ Limitations:**
+            - Max input: ~50,000 characters
+            - Summary length: 100-1000 characters (adjustable)
+            - Processing time: ~1-3 seconds
             """)
             
             with gr.Row():
@@ -550,6 +560,12 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 🌐 Scrape and Analyze Web Content
             Fetch content from any website, extract clean text, and analyze it.
+            
+            **⚠️ Limitations:**
+            - Timeout: 30 seconds per request
+            - Some sites block automated access (LinkedIn, Facebook, etc.)
+            - JavaScript-heavy sites may not render fully
+            - Rate limits apply to prevent abuse
             """)
             
             with gr.Row():
@@ -594,6 +610,12 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 🔍 Semantic Document Search with AI
             Search through documents using AI-powered semantic understanding (RAG - Retrieval Augmented Generation).
+            
+            **⚠️ Limitations:**
+            - Currently searches 5 pre-loaded sample documents
+            - First search: ~5-10 seconds (loads AI model)
+            - Subsequent searches: ~1-2 seconds
+            - Max 1000 documents supported
             """)
             
             with gr.Row():
@@ -640,6 +662,12 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 📊 Create Beautiful Charts from Your Data
             Transform CSV data into stunning visualizations - line charts, bar charts, pie charts, and scatter plots.
+            
+            **⚠️ Limitations:**
+            - Max 10,000 rows of data
+            - CSV format only (comma-separated)
+            - Generated as PNG images (800x600px)
+            - Numeric columns required for pie/scatter charts
             """)
             
             with gr.Row():
@@ -688,6 +716,12 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 📧 AI-Powered Email Intent Detection
             Automatically classify email intent and detect sentiment - complaint, inquiry, urgent, etc.
+            
+            **⚠️ Limitations:**
+            - Rule-based classification (not deep learning)
+            - Max 10,000 characters per email
+            - English language optimized
+            - 10 intent categories supported
             """)
             
             with gr.Row():
@@ -739,6 +773,12 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css, title="MissionControlMCP 
             gr.Markdown("""
             ### 📈 Business KPI & Analytics Dashboard
             Generate comprehensive business metrics and KPIs from your data automatically.
+            
+            **⚠️ Limitations:**
+            - JSON format required
+            - Max 50 KPIs calculated per request
+            - Numeric data only for calculations
+            - Processing time: ~1-2 seconds
             """)
             
             with gr.Row():
