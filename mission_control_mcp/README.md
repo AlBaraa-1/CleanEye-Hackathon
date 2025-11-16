@@ -9,6 +9,7 @@ app_file: app.py
 pinned: false
 tags:
 - building-mcp-track-enterprise
+- mcp-in-action-track-enterprise
 - mcp
 - anthropic
 - enterprise-automation
@@ -23,9 +24,17 @@ tags:
 
 A fully functional Model Context Protocol (MCP) server providing 8 powerful enterprise automation tools for document processing, web scraping, semantic search, data visualization, and business analytics.
 
-Built for the **MCP 1st Birthday Hackathon – Winter 2025** (Track 1: Building MCP - Enterprise Category).
+Built for the **MCP 1st Birthday Hackathon – Winter 2025** (Tracks: Building MCP + MCP in Action - Enterprise).
 
-🏆 **Hackathon Submission** | 🔧 **Track 1: Building MCP** | 🏢 **Enterprise Category**
+🏆 **Hackathon Submission** | 🔧 **Both Tracks** | 🏢 **Enterprise Category**
+
+---
+
+## 📱 Social Media & Links
+
+- 🔗 **LinkedIn Post:** [View Announcement](https://www.linkedin.com/posts/albaraa-alolabi_mcphackathon-gradiohackathon-huggingface-activity-7395722042223886336-kp7K?utm_source=share&utm_medium=member_desktop)
+- 🚀 **Live Demo:** [Try on Hugging Face](https://huggingface.co/spaces/AlBaraa63/8_tools)
+- 💻 **GitHub Repository:** [Source Code](https://github.com/AlBaraa-1/CleanEye-Hackathon)
 
 ---
 
@@ -65,7 +74,7 @@ Built for the **MCP 1st Birthday Hackathon – Winter 2025** (Track 1: Building 
 
 ```bash
 # Test all tools with sample files
-python test_samples.py
+python demo.py
 ```
 
 **See [TESTING.md](TESTING.md) for complete testing guide with examples!**
@@ -407,13 +416,13 @@ After configuration, restart Claude Desktop. You can then ask Claude to:
 
 ## 🧪 Testing
 
-Run the comprehensive test suite:
+Run the comprehensive demo:
 
 ```bash
-python test_server.py
+python demo.py
 ```
 
-The test suite includes:
+The demo includes:
 - Text extraction and processing tests
 - Web fetching tests
 - RAG search demonstrations
@@ -429,11 +438,12 @@ The test suite includes:
 ```
 mission_control_mcp/
 ├── mcp_server.py              # Main MCP server
+├── app.py                     # Gradio web interface
+├── demo.py                    # Demo & test suite
 ├── requirements.txt           # Dependencies
-├── test_server.py            # Test suite
-├── README.md                 # Documentation
+├── README.md                  # Documentation
 │
-├── tools/                    # Tool implementations
+├── tools/                     # Tool implementations
 │   ├── pdf_reader.py
 │   ├── text_extractor.py
 │   ├── web_fetcher.py
@@ -490,11 +500,12 @@ mission_control_mcp/
 
 ---
 
-## � Documentation & Examples
+## 📝 Documentation & Examples
 
 - **[EXAMPLES.md](EXAMPLES.md)** - Real-world use cases, workflows, and ROI examples
-- **[HACKATHON_SUBMISSION.md](HACKATHON_SUBMISSION.md)** - Judge evaluation guide
-- **[VIDEO_SCRIPT.md](VIDEO_SCRIPT.md)** - Demo video script and talking points
+- **[TESTING.md](TESTING.md)** - Complete testing guide with examples
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and architecture details
+- **[API.md](API.md)** - Complete API documentation
 - **[examples/](examples/)** - Sample files for testing all tools:
   - `sample_report.txt` - Business report for text extraction
   - `business_data.csv` - Financial data for visualization & KPIs
