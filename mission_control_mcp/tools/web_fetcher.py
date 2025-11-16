@@ -50,6 +50,16 @@ def fetch_web_content(url: str, extract_text_only: bool = True, timeout: int = 3
             # Parse HTML and extract text
             soup = BeautifulSoup(response.text, 'html.parser')
             
+            # Extract title
+            title = soup.title.string if soup.title else "No title"
+            
+            # Extract links
+            links = []
+            for link in soup.find_all('a', href=True):
+                href = link.get('href', '')
+                if href and not href.startswith('#'):
+                    links.append(href)
+            
             # Remove script and style elements
             for script in soup(["script", "style", "nav", "footer", "header"]):
                 script.decompose()
@@ -68,6 +78,8 @@ def fetch_web_content(url: str, extract_text_only: bool = True, timeout: int = 3
         else:
             # Return raw content
             content = response.text
+            title = "N/A (non-HTML content)"
+            links = []
         
         # Build metadata
         metadata = {
@@ -83,6 +95,8 @@ def fetch_web_content(url: str, extract_text_only: bool = True, timeout: int = 3
         return {
             "content": content,
             "status_code": response.status_code,
+            "title": title,
+            "links": links,
             "metadata": metadata
         }
         
