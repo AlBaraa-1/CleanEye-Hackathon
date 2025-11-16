@@ -234,10 +234,8 @@ mission_control_mcp/
 │   ├── sample_email_*.txt     # Email samples
 │   └── sample_documents.txt   # RAG search docs
 │
-├── tests/                     # Test suites
-│   ├── test_samples.py        # Test with sample data
-│   ├── test_server.py         # MCP server tests
-│   └── test_individual.py     # Individual tool tests
+├── app.py                     # Gradio web interface
+├── demo.py                    # Demo & test suite
 │
 ├── docs/                      # Documentation
 │   ├── README.md              # Main documentation
@@ -245,8 +243,7 @@ mission_control_mcp/
 │   ├── EXAMPLES.md            # Use cases
 │   ├── TESTING.md             # Testing guide
 │   ├── ARCHITECTURE.md        # This file
-│   ├── CONTRIBUTING.md        # Contribution guide
-│   └── VIDEO_SCRIPT.md        # Demo script
+│   └── CONTRIBUTING.md        # Contribution guide
 │
 ├── requirements.txt           # Python dependencies
 ├── .gitignore                 # Git ignore rules

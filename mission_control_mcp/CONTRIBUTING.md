@@ -33,7 +33,7 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.11 or higher
 - Git
 - Basic knowledge of Python and MCP protocol
 
@@ -82,9 +82,7 @@ pip install pytest black flake8 mypy
 ### 4. Run Tests
 
 ```bash
-python test_samples.py
-python test_server.py
-python test_individual.py
+python demo.py
 ```
 
 ---

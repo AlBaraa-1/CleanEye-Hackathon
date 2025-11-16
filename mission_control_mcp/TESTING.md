@@ -7,7 +7,7 @@ We've created sample files in the `examples/` directory to demonstrate all Missi
 ### Run All Tests
 
 ```bash
-python test_samples.py
+python demo.py
 ```
 
 This will test:
@@ -174,10 +174,10 @@ python test_individual.py
 
 This runs isolated tests on each tool (8 total).
 
-### Full Integration Tests
+### MCP Server Tests
 
 ```bash
-python test_server.py
+python demo.py
 ```
 
 Tests all MCP tool handlers and server integration.
@@ -237,7 +237,7 @@ pip install -r requirements.txt
 ```
 
 ### Python Version
-Requires Python 3.8+. Check with:
+Requires Python 3.11+. Check with:
 ```bash
 python --version
 ```
@@ -258,7 +258,7 @@ python --version
 
 ## Next Steps
 
-1. ✅ Run `python test_samples.py` to verify all tools work
+1. ✅ Run `python demo.py` to verify all tools work
 2. ✅ Try individual tool tests with your own data
 3. ✅ Configure Claude Desktop integration
 4. ✅ Test with Claude using sample prompts
