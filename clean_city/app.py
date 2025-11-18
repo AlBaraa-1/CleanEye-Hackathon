@@ -615,22 +615,24 @@ def create_interface() -> gr.Blocks:
 # MAIN ENTRY POINT
 # ============================================================================
 
+# Create the Gradio app at module level for HuggingFace Spaces compatibility
+print("=" * 60)
+print("🌍 CleanCity Agent - Initializing...")
+print("=" * 60)
+
+# Initialize LLM client (will print status)
+get_llm_client()
+
+print("\n✓ Creating Gradio interface...")
+app = create_interface()
+print("✓ Gradio interface ready!")
+print("=" * 60 + "\n")
+
+
 def main():
-    """Launch the Gradio application."""
-    print("=" * 60)
-    print("🌍 CleanCity Agent - Starting...")
-    print("=" * 60)
-    
-    # Initialize LLM client (will print status)
-    get_llm_client()
-    
-    print("\n✓ Creating Gradio interface...")
-    app = create_interface()
-    
-    print("✓ Launching web server...")
-    print("\n" + "=" * 60)
-    print("🚀 Access the app at: http://localhost:7860")
-    print("=" * 60 + "\n")
+    """Launch the Gradio application (local development)."""
+    print("🚀 Launching web server...")
+    print("Access the app at: http://localhost:7860\n")
     
     app.launch(
         server_name="0.0.0.0",  # Allow external connections
