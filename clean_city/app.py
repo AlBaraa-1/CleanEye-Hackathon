@@ -453,13 +453,13 @@ def analyze_image(
             pass  # Invalid format, continue without coords
     
     try:
-        # Run the full workflow
+        # Run the full workflow with AI-powered planning
         result = run_cleanup_workflow(
             image=image,
             location=location if location.strip() else None,
             notes=notes if notes.strip() else None,
             save_to_history=save_to_history,
-            use_llm_enhancement=False,  # Can make this a checkbox
+            use_llm_enhancement=True,  # Enable Gemini AI for intelligent planning
             latitude=latitude,
             longitude=longitude
         )
@@ -676,39 +676,153 @@ def load_hotspots(days: int) -> str:
 # ============================================================================
 
 def chat_with_agent(message: str, history: list) -> str:
-    """Handle chat interactions with the CleanCity agent."""
+    """Handle chat interactions with the CleanCity agent using Gemini for intelligent responses."""
     try:
-        llm = get_llm_client()
+        # Get recent event data for context
+        from tools.history_tool import query_events
+        recent_events = query_events(days=7, limit=5)
         
-        # Build context from history
-        context = ""
-        for user_msg, bot_msg in history:
-            context += f"User: {user_msg}\nAgent: {bot_msg}\n"
-        
-        # System prompt
-        system_prompt = """You are CleanCity Agent, a helpful AI assistant focused on 
-environmental cleanup and trash management. You help users:
-- Understand their trash detection results
-- Plan effective cleanup operations
-- Organize community action
-- Report issues to authorities
-- Analyze environmental impact
+        # Build system context with real data
+        system_context = """You are CleanCity Agent, an AI assistant that helps with environmental cleanup.
 
-Be friendly, practical, and encouraging. Keep responses concise but informative."""
+You have access to real trash detection data from our database. Here's recent activity:
+"""
         
-        prompt = f"{context}User: {message}\nAgent:"
+        if recent_events and isinstance(recent_events, list) and len(recent_events) > 0:
+            system_context += f"\n**Recent Detections ({len(recent_events)} events in past 7 days):**\n"
+            for event in recent_events[:3]:
+                system_context += f"- {event.get('location', 'Unknown location')}: {event.get('total_items', 0)} items, severity: {event.get('severity', 'unknown')}\n"
+        else:
+            system_context += "\nNo recent detection events in database.\n"
         
-        response = llm.generate_text(
-            prompt,
-            system_prompt=system_prompt,
-            max_tokens=300,
-            temperature=0.7
-        )
-        
-        return response
+        system_context += """
+Your capabilities:
+- Answer questions about trash detection and cleanup planning
+- Provide specific resource estimates based on trash counts
+- Suggest equipment and volunteer needs
+- Give advice on organizing community cleanups
+- Explain environmental impact
+
+When users ask about cleanup planning:
+- Ask specific questions (how many items? what types? location?)
+- Give concrete numbers (volunteers, time, equipment)
+- Consider safety and proper disposal
+- Be practical and encouraging
+
+Keep responses concise (2-3 paragraphs max) but helpful."""
+
+        # Use Gemini for intelligent responses
+        try:
+            import google.generativeai as genai
+            import os
+            
+            api_key = os.getenv("GEMINI_API_KEY")
+            if api_key:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash-latest')
+                
+                # Build conversation history from Gradio messages format
+                chat_history = []
+                # History is list of dicts: [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
+                for i in range(0, len(history), 2):
+                    if i + 1 < len(history):
+                        user_msg = history[i].get("content", "")
+                        bot_msg = history[i + 1].get("content", "")
+                        chat_history.append(f"User: {user_msg}\nAssistant: {bot_msg}")
+                
+                # Use only last 3 exchanges for context
+                chat_history = chat_history[-3:]
+                
+                full_prompt = f"{system_context}\n\n"
+                if chat_history:
+                    full_prompt += "Previous conversation:\n" + "\n".join(chat_history) + "\n\n"
+                full_prompt += f"User: {message}\n\nProvide a helpful, specific response:"
+                
+                response = model.generate_content(full_prompt)
+                return response.text
+            else:
+                # Fallback to offline mode
+                return generate_offline_response(message)
+                
+        except Exception as e:
+            print(f"⚠ Gemini chat error: {e}")
+            import traceback
+            traceback.print_exc()
+            return generate_offline_response(message)
     
     except Exception as e:
-        return f"I encountered an error: {str(e)}. Please try again or check your LLM configuration."
+        return f"I encountered an error: {str(e)}. Please try rephrasing your question."
+
+
+def generate_offline_response(message: str) -> str:
+    """Generate helpful offline responses when Gemini is not available."""
+    message_lower = message.lower()
+    
+    # Planning questions
+    if any(word in message_lower for word in ['how many', 'volunteers', 'people', 'crew']):
+        return """For cleanup planning, I recommend:
+
+**General Guidelines:**
+- Small area (5-10 items): 1-2 volunteers, 15-30 minutes
+- Medium area (10-25 items): 3-4 volunteers, 30-60 minutes  
+- Large area (25+ items): 5-8 volunteers, 1-2 hours
+
+Use the "Analyze Image" tab to get specific estimates based on your actual trash photo!"""
+    
+    # Equipment questions
+    elif any(word in message_lower for word in ['equipment', 'tools', 'supplies', 'need']):
+        return """Essential cleanup equipment:
+
+**Basic Kit:**
+- Heavy-duty trash bags
+- Gloves (nitrile or work gloves)
+- Grabber tools/picker sticks
+- Safety vests (if near roads)
+
+**For larger cleanups:**
+- First aid kit
+- Hand sanitizer
+- Separate bags for recyclables
+- Containers for hazardous items
+
+Always prioritize safety - avoid touching sharp objects or hazardous materials directly!"""
+    
+    # Organization questions
+    elif any(word in message_lower for word in ['organize', 'start', 'community', 'event']):
+        return """Steps to organize a successful cleanup:
+
+1. **Scout the location** - Use CleanCity to document the problem
+2. **Plan resources** - Get specific volunteer/time estimates from our AI
+3. **Recruit help** - Share the detection report to show the need
+4. **Get permissions** - Contact property owners/city if needed
+5. **Execute & document** - Take before/after photos
+6. **Report success** - Share results to inspire others!
+
+Upload a photo in the Analyze tab to generate a professional planning report."""
+    
+    # Hotspot questions
+    elif any(word in message_lower for word in ['hotspot', 'pattern', 'recurring', 'often']):
+        return """Check the "Hotspots" tab to see locations with recurring trash problems!
+
+Hotspot analysis helps you:
+- Identify areas that need regular attention
+- Request permanent solutions (more trash bins, signage)
+- Demonstrate patterns to city officials
+- Prioritize limited cleanup resources
+
+Save your detections to history to build up data over time."""
+    
+    # Default helpful response
+    else:
+        return """I can help you with:
+
+• **Cleanup planning** - Upload a photo to get volunteer/time/equipment estimates
+• **Organization tips** - How to run effective community cleanups
+• **Equipment advice** - What supplies you need
+• **Hotspot tracking** - Find recurring problem areas
+• **Impact reports** - Generate professional documentation
+
+What specific aspect would you like help with?"""
 
 
 # ============================================================================

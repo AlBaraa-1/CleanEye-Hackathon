@@ -13,7 +13,7 @@ def plan_cleanup(
     detections: list[Detection],
     location: Optional[str] = None,
     notes: Optional[str] = None,
-    use_llm: bool = False
+    use_llm: bool = True  # Default to True for intelligent AI planning
 ):
     """
     Generate a cleanup plan based on detected trash.
@@ -22,7 +22,7 @@ def plan_cleanup(
         detections: List of trash detections from detection tool
         location: Optional location description
         notes: Optional additional context
-        use_llm: Whether to use LLM for enhanced planning (vs rule-based)
+        use_llm: Whether to use Gemini AI for intelligent planning (default: True)
     
     Returns:
         Dict containing:
@@ -32,7 +32,7 @@ def plan_cleanup(
             - equipment_needed: list[str]
             - urgency_days: int (recommended action timeframe)
             - environmental_impact: str
-            - action_summary: str
+            - action_summary: str (AI-generated when use_llm=True)
     """
     if not detections:
         return {
@@ -140,7 +140,79 @@ def _enhance_with_llm(
     location: Optional[str],
     notes: Optional[str]
 ) -> str:
-    """Use LLM to create more detailed, context-aware action summary."""
+    """Use Gemini AI to create intelligent, context-aware cleanup plans."""
+    import os
+    
+    # Try Gemini first for intelligent planning
+    api_key = os.getenv("GEMINI_API_KEY")
+    if api_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=api_key)
+            
+            # Build detailed context for Gemini
+            detection_details = []
+            category_counts = {}
+            for d in detections:
+                label = d.get("label", "unknown")
+                category_counts[label] = category_counts.get(label, 0) + 1
+            
+            for label, count in sorted(category_counts.items(), key=lambda x: -x[1]):
+                detection_details.append(f"- {label}: {count} item(s)")
+            
+            context = f"""**Trash Detection Analysis:**
+{chr(10).join(detection_details)}
+
+**Total Items:** {len(detections)}
+**Categories:** {len(category_counts)} types
+**Severity:** {plan['severity']}
+**Location:** {location or 'Not specified'}
+**Notes:** {notes or 'None'}
+
+**Baseline Estimates:**
+- Volunteers needed: {plan['recommended_volunteers']}
+- Time estimate: {plan['estimated_time_minutes']} minutes
+- Equipment: {', '.join(plan['equipment'])}
+"""
+
+            prompt = f"""You are an expert environmental cleanup coordinator with years of field experience. 
+
+Analyze this trash situation and create an intelligent, actionable cleanup plan:
+
+{context}
+
+Generate a comprehensive cleanup plan that includes:
+
+1. **Situation Assessment** - What's the severity and why? What environmental risks exist?
+
+2. **Resource Optimization** - Are the baseline estimates right? Should we adjust volunteers, time, or equipment based on:
+   - Specific trash types detected (sharp objects need safety gear, electronics need special disposal, etc.)
+   - Quantity and distribution
+   - Location characteristics
+   - Potential hazards
+
+3. **Specific Action Steps** - Not generic steps, but SPECIFIC to this situation:
+   - What should be prioritized first?
+   - What special handling is needed?
+   - What safety precautions?
+   - What disposal methods?
+
+4. **Environmental Impact** - Why does THIS specific cleanup matter? What habitat/ecosystem benefits?
+
+5. **Smart Recommendations** - Any location-specific tips or efficiency strategies?
+
+Be SPECIFIC and PRACTICAL. This is a real cleanup, not a template. If you see hazardous items, mention them. If the time estimate seems wrong, adjust it. Make it actionable."""
+
+            model = genai.GenerativeModel('gemini-1.5-flash-latest')
+            response = model.generate_content(prompt)
+            
+            if response and response.text:
+                return response.text.strip()
+                
+        except Exception as e:
+            print(f"Gemini AI planning failed: {e}")
+    
+    # Fallback to basic LLM client
     detection_summary = f"{len(detections)} items detected: "
     detection_summary += ", ".join(set(d["label"] for d in detections))
     
