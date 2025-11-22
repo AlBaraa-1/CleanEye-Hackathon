@@ -167,7 +167,7 @@ See full MCP setup guide: [MCP_SETUP.md](MCP_SETUP.md)
 
 ## 🎬 **Demo Video**
 
-### **[▶️ Watch Full Demo (YouTube Short)](https://youtube.com/shorts/sElW_r3o3Og?feature=share)**
+### **[▶️ Watch Full Demo (2 minutes)](YOUR_VIDEO_URL_HERE)**
 
 **Timestamps:**
 - **0:00** - The problem: Trash everywhere, no data
